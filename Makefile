@@ -21,7 +21,7 @@ RELATIVE_HDS		=	ft_traceroute.h
 # Code
 
 DIR_GLOBAL						=	srcs
-SRC_GLOBAL						=	ft_traceroute   \
+SRC_GLOBAL						=	ft_traceroute.c \
 									main.c
 
 ################################################################################
