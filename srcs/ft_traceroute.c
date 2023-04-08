@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 int signalStop;
 
@@ -33,6 +34,12 @@ static int host_to_ip(t_trace *trace) {
     getnameinfo(tmp->ai_addr, tmp->ai_addrlen, host, sizeof(host), NULL, 0,
                 NI_NUMERICHOST);
     strcpy(trace->ip, host);
+  }
+  while (servinfo != NULL) {
+    tmp = servinfo;
+    servinfo = servinfo->ai_next;
+    free(tmp->ai_addr);
+    free(tmp);
   }
   return EXIT_SUCCESS;
 }
@@ -156,7 +163,8 @@ static void get_name_ip(t_trace *trace, char *ip) {
 
 static void free_struct(t_trace *trace) {
   if (trace->alloc == 1)
-    free(trace->hostname);
+    free(trace->packet);
+  close(trace->sockfd);
   free(trace);
   return;
 }

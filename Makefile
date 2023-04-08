@@ -21,14 +21,14 @@ RELATIVE_HDS		=	ft_traceroute.h
 # Code
 
 DIR_GLOBAL						=	srcs
-SRC_GLOBAL						=	ft_traceroute.c \
+SRC_GLOBAL						=	ft_traceroute.c   \
 									main.c
 
 ################################################################################
 ##                       Compilation Environnement                            ##
 ################################################################################
 
-NAME	=	ft_ping
+NAME	=	ft_traceroute
 CC		=	cc
 CFLAGS	=	-Wall -Werror -Wextra -O3
 # -g3 -ggdb -fsanitize=address

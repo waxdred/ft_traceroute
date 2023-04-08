@@ -45,6 +45,7 @@ typedef struct s_trace {
   int8_t (*recv)(struct s_trace *);
   int8_t (*set_ttl)(struct s_trace *);
 } t_trace;
+
 t_trace *initTrace(int ac, char **av);
 
 #endif

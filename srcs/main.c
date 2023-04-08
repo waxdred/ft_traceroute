@@ -17,5 +17,6 @@ int main(int ac, char *av[]) {
     return EXIT_FAILURE;
   }
   trace->run(trace);
+  trace->free(trace);
   return (0);
 }
