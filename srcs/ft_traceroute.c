@@ -1,10 +1,5 @@
 #include "../includes/ft_traceroute.h"
-#include <arpa/inet.h>
 #include <netdb.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <unistd.h>
 
 int signalStop;
 
@@ -35,12 +30,7 @@ static int host_to_ip(t_trace *trace) {
                 NI_NUMERICHOST);
     strcpy(trace->ip, host);
   }
-  while (servinfo != NULL) {
-    tmp = servinfo;
-    servinfo = servinfo->ai_next;
-    free(tmp->ai_addr);
-    free(tmp);
-  }
+  freeaddrinfo(servinfo);
   return EXIT_SUCCESS;
 }
 
