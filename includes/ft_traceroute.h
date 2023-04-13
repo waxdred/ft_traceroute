@@ -1,6 +1,7 @@
 #ifndef FT_TRACEROUTE_H
 #define FT_TRACEROUTE_H
 
+#include "../libft/include/libft.h"
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netdb.h>

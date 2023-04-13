@@ -33,6 +33,15 @@ CC		=	cc
 CFLAGS	=	-Wall -Werror -Wextra -O3
 # -g3 -ggdb -fsanitize=address
 
+# Library
+
+LIBS = -Llibft -lft
+
+# libft
+
+DIR_LIBFT			= 	libft
+LIBFT_NAME			=	$(DIR_LIBFT)/libft.a
+
 # Sources
 
 DIRS_SRC			=	$(DIR_GLOBAL)
@@ -45,34 +54,40 @@ SRCS		=	$(addprefix $(DIR_GLOBAL)/, $(SRC_GLOBAL))					\
 HDS			=	$(addprefix $(DIR_HDS)/, $(RELATIVE_HDS))
 OBJS		=	$(addprefix $(DIR_OBJ)/, $(SRCS:.c=.o))
 
-DEPENDS		=	$(HDS) $(MK) $(LIBFT_NAME) $(MLX)
+DEPENDS		=	$(HDS) $(MK) $(LIBFT_NAME)
 
 ################################################################################
 ##                                 Règles                                     ##
 ################################################################################
 
 all		:	$(NAME)
-bonus	:	$(NAME)
 
 define src2obj
+
 $(DIR_OBJ)/$(1)/%.o:	$(1)/%.c $(2)
 	@mkdir -p $(DIR_OBJ)/$(1)
-	@printf "\r\033[K\tCompilation of $(COLOR_PURPLE)$$< ==> $$@\$(COLOR_NORM)"
+	@printf "\r\033[K\t[✅]\t$(COLOR_PURPLE)$$< --> $$@\$(COLOR_NORM)"
 	@$(CC) $(CFLAGS) -c -o $$@ $$< $(INC_INC)
 endef
 
 $(foreach dir,$(DIRS_SRC),$(eval $(call src2obj,$(dir), $(DEPENDS))))
 
 $(NAME)	: $(DEPENDS) $(OBJS)
-	@printf "\n\tCompilation of $(COLOR_PURPLE)$(NAME)\$(COLOR_NORM)\n"
+	@printf "\n[✅]\tCompilation of $(COLOR_PURPLE)$(NAME)\$(COLOR_NORM)\n"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBS)
 
+$(LIBFT_NAME):
+	@printf "\n\tCompilation of $(COLOR_PURPLE)$(LIBFT_NAME)\$(COLOR_NORM)\n"
+	@make --quiet -C $(DIR_LIBFT)
+
 clean:
-	@printf "\tDelete $(COLOR_RED)object of $(DIR_GLOBAL)$(COLOR_NORM) of $(NAME)\n"
+	@make --quiet -C $(DIR_LIBFT) clean
+	@printf "[✅]\tDelete $(COLOR_RED)object of $(DIR_GLOBAL)$(COLOR_NORM) of $(NAME)\n"
 	@rm -rf $(DIR_OBJ)
 
 fclean: clean
-	@printf "\tDelete $(COLOR_RED)all binary on $(DIR_LIBFT)$(COLOR_NORM)\n"
+	@make --quiet -C $(DIR_LIBFT) fclean
+	@printf "[✅]\tDelete $(COLOR_RED)all binary on $(DIR_LIBFT)$(COLOR_NORM)\n"
 	@rm -rf $(NAME)
 
 send: fclean 

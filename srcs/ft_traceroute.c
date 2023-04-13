@@ -1,5 +1,4 @@
 #include "../includes/ft_traceroute.h"
-#include <netdb.h>
 
 int signalStop;
 
