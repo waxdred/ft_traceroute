@@ -29,6 +29,7 @@ typedef struct s_trace {
   int sockfd;
   int ttl;
   int verose;
+  int signalStop;
   uint16_t seq;
 
   struct icmp *icmp_header;
@@ -36,17 +37,30 @@ typedef struct s_trace {
   struct timeval tv;
 
   void (*help)(char *);
-  void (*free)(struct s_trace *);
-  int (*getname)(struct s_trace *);
-  void (*getinfo)(struct s_trace *, char *ip);
-  void (*header)(struct s_trace *);
-  int8_t (*connection)(struct s_trace *);
-  void (*run)(struct s_trace *);
-  int8_t (*send)(struct s_trace *);
-  int8_t (*recv)(struct s_trace *);
-  int8_t (*set_ttl)(struct s_trace *);
+  void (*free)();
+  int (*getname)();
+  void (*getinfo)(char *ip);
+  void (*header)();
+  int8_t (*connection)();
+  void (*run)();
+  int8_t (*send)();
+  int8_t (*recv)();
+  int8_t (*set_ttl)();
 } t_trace;
 
+int host_to_ip();
+int8_t ft_receive();
+int8_t ft_send();
+int8_t openSocket();
+int8_t set_ttl();
+t_trace *ft_trace(t_trace *t);
 t_trace *initTrace(int ac, char **av);
+unsigned short calculate_checksum(void *addr, size_t count);
+void fill_seq_icmp();
+void free_struct();
+void ft_traceroute();
+void handle_signal();
+void help(char *s);
+void get_name_ip(char *ip);
 
 #endif

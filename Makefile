@@ -22,7 +22,12 @@ RELATIVE_HDS		=	ft_traceroute.h
 
 DIR_GLOBAL						=	srcs
 SRC_GLOBAL						=	ft_traceroute.c   \
-									main.c
+												mem.c							\
+												init.c						\
+												tool.c						\
+												signal.c						\
+												trace.c						\
+												main.c
 
 ################################################################################
 ##                       Compilation Environnement                            ##
