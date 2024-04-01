@@ -3,20 +3,25 @@
 int main(int ac, char *av[]) {
   t_trace *trace;
 
-  trace = initTrace(ac, av);
+  trace = initTrace();
   if (!trace)
     return EXIT_FAILURE;
-  if (ac != 2) {
+  if (ac < 2) {
     trace->help(av[0]);
-    trace->free(trace);
+    trace->free();
     exit(EXIT_FAILURE);
   }
-  int err = 0;
-  if ((err = trace->connection(trace)) != 0) {
-    trace->free(trace);
+
+  if (trace->parse(ac, av)) {
+    trace->free();
     return EXIT_FAILURE;
   }
-  trace->run(trace);
-  trace->free(trace);
+  int err = 0;
+  if ((err = trace->connection()) != 0) {
+    trace->free();
+    return EXIT_FAILURE;
+  }
+  trace->run();
+  trace->free();
   return (0);
 }

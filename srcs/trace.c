@@ -1,4 +1,5 @@
 #include "../includes/ft_traceroute.h"
+#include <netinet/udp.h>
 
 void help(char *s) {
   fprintf(stderr, "Usage: %s, ip_adress\n", s);
@@ -8,7 +9,7 @@ void help(char *s) {
 int8_t set_ttl() {
   // set ttl
   t_trace *trace = ft_trace(NULL);
-  if (setsockopt(trace->sockfd, IPPROTO_IP, IP_TTL, &trace->ttl,
+  if (setsockopt(trace->sock, IPPROTO_IP, IP_TTL, &trace->ttl,
                  sizeof(trace->ttl)) == -1) {
     fprintf(stderr, "ft_trace: error set setsockopt ttl: %s\n",
             strerror(errno));
@@ -22,7 +23,7 @@ int host_to_ip() {
   char host[100];
   struct addrinfo hint;
   struct addrinfo *servinfo, *tmp;
-  bzero(&hint, sizeof(hint));
+  ft_bzero(&hint, sizeof(hint));
   hint.ai_family = AF_INET;
 
   int recv = getaddrinfo(trace->hostname, NULL, &hint, &servinfo);
@@ -37,7 +38,7 @@ int host_to_ip() {
   for (tmp = servinfo; tmp != NULL; tmp = tmp->ai_next) {
     getnameinfo(tmp->ai_addr, tmp->ai_addrlen, host, sizeof(host), NULL, 0,
                 NI_NUMERICHOST);
-    strcpy(trace->ip, host);
+    ft_strcpy(trace->ip, host);
   }
   freeaddrinfo(servinfo);
   return EXIT_SUCCESS;
@@ -47,8 +48,8 @@ void get_name_ip(char *ip) {
   t_trace *trace = ft_trace(NULL);
   struct sockaddr_in sa;
 
-  memset(&sa, 0, sizeof(sa));
-  memset(&trace->host, 0, sizeof(trace->host));
+  ft_memset(&sa, 0, sizeof(sa));
+  ft_memset(&trace->host, 0, sizeof(trace->host));
   sa.sin_family = AF_INET;
   sa.sin_addr.s_addr = inet_addr(ip);
   if (getnameinfo((struct sockaddr *)&sa, sizeof(sa), trace->host,
@@ -58,22 +59,43 @@ void get_name_ip(char *ip) {
   }
 }
 
+void SetPortUdp(t_trace *trace, int port) {
+  trace->dest_addr_udp.sin_port = htons(port);
+}
+
 int8_t openSocket() {
   t_trace *trace = ft_trace(NULL);
   struct timeval timeout = {1, 0};
   socklen_t len = sizeof(timeout);
   trace->sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-  if (trace->sockfd == -1) {
+  trace->sockfd_udp = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if (trace->sockfd == -1 || trace->sockfd_udp == -1) {
     fprintf(stderr, "ft_trace: error creation socket: %s\n", strerror(errno));
     return EXIT_FAILURE;
   }
-  trace->packetSize = sizeof(struct icmp) + sizeof(struct timeval);
+  switch (trace->proto) {
+  case IPPROTO_ICMP:
+    trace->packetSize = sizeof(struct icmp) + sizeof(struct timeval);
+    trace->sock = trace->sockfd;
+    break;
+  case IPPROTO_UDP:
+    trace->packetSize = sizeof(struct udphdr) + sizeof(struct timeval);
+    trace->sock = trace->sockfd_udp;
+    break;
+  }
   trace->packet = (char *)malloc(trace->packetSize);
   if (!trace->packet) {
     fprintf(stderr, "ft_trace: error allocation: %s\n", strerror(errno));
     return 2;
   }
-  ft_memset(trace->packet, 0, sizeof(struct icmp));
+  switch (trace->proto) {
+  case IPPROTO_ICMP:
+    ft_memset(trace->packet, 0, sizeof(struct icmp));
+    break;
+  case IPPROTO_UDP:
+    ft_memset(trace->packet, 0, sizeof(struct udphdr));
+    break;
+  }
   trace->alloc = 1;
   if (trace->getname()) {
     return EXIT_FAILURE;
@@ -84,10 +106,21 @@ int8_t openSocket() {
             strerror(errno));
     return EXIT_FAILURE;
   }
-  trace->dest_addr.sin_family = AF_INET;
-  trace->dest_addr.sin_addr.s_addr = inet_addr(trace->ip);
-  trace->icmp_header = (struct icmp *)trace->packet;
-  trace->icmp_header->icmp_id = getpid() & 0xFFFF;
-  trace->header(trace);
+  switch (trace->proto) {
+  case IPPROTO_ICMP:
+    trace->dest_addr.sin_family = AF_INET;
+    trace->dest_addr.sin_addr.s_addr = inet_addr(trace->ip);
+    trace->icmp_header = (struct icmp *)trace->packet;
+    trace->icmp_header->icmp_id = getpid() & 0xFFFF;
+    break;
+  case IPPROTO_UDP:
+    // set dest for udp
+    trace->dest_addr_udp.sin_family = AF_INET;
+    SetPortUdp(trace, DEST_PORT);
+    trace->dest_addr_udp.sin_addr.s_addr = inet_addr(trace->ip);
+    break;
+  }
+  if (trace->proto == IPPROTO_ICMP)
+    trace->header();
   return EXIT_SUCCESS;
 }

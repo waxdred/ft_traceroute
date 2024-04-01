@@ -27,6 +27,7 @@ SRC_GLOBAL						=	ft_traceroute.c   \
 												tool.c						\
 												signal.c						\
 												trace.c						\
+												parsing.c						\
 												main.c
 
 ################################################################################
@@ -35,7 +36,7 @@ SRC_GLOBAL						=	ft_traceroute.c   \
 
 NAME	=	ft_traceroute
 CC		=	cc
-CFLAGS	=	-Wall -Werror -Wextra -O3
+CFLAGS	=	-Wall -Werror -Wextra -O3 -g3
 # -g3 -ggdb -fsanitize=address
 
 # Library
