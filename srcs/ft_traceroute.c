@@ -32,10 +32,13 @@ int8_t ft_receive(t_query *q) {
   socklen_t fromlen = sizeof(from);
   char srcIP[INET_ADDRSTRLEN], dstIP[INET_ADDRSTRLEN];
 
-  bzero(buf, 1024);
+  ft_bzero(buf, 1024);
+  ft_bzero(srcIP, INET_ADDRSTRLEN);
+  ft_bzero(dstIP, INET_ADDRSTRLEN);
+
   ret = recvfrom(trace->sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&from,
                  &fromlen);
-  if (ret < 0) {
+  if (ret == -1) {
     if (q->count == 0 && trace->ttl < 10) {
       printf(" %d * ", trace->ttl);
     } else if (q->count == 0 && trace->ttl) {
@@ -61,7 +64,7 @@ int8_t ft_receive(t_query *q) {
     else
       printf("%d %s (%s) %.3lf ms ", trace->ttl, trace->host, srcIP, data);
   } else {
-    if (ft_strcmp(q->host, trace->host) == 0) {
+    if (q->host != NULL && ft_strcmp(trace->host, q->host) == 0) {
       printf("%.3lf ms ", data);
     } else {
       printf("%s (%s) %.3lf ms ", trace->host, srcIP, data);
@@ -71,7 +74,7 @@ int8_t ft_receive(t_query *q) {
     printf("\n");
   }
   q->host = trace->host;
-  if (q->count == trace->query - 1 && ft_strcmp(trace->ip, srcIP) == 0) {
+  if (q->count == trace->query - 1 && ft_strcmp(srcIP, trace->ip) == 0) {
     return EXIT_RECV_DONE;
   }
   trace->seq++;
@@ -87,7 +90,7 @@ void ft_traceroute() {
   signal(SIGINT, handle_signal);
   fprintf(stdout, "ft_traceroute to %s (%s), %d hops max, %d byte packets\n",
           trace->hostname, trace->ip, trace->hopmax, trace->packetSize);
-  for (; trace->signalStop && trace->ttl < trace->hopmax;) {
+  for (; trace->signalStop && trace->ttl <= trace->hopmax;) {
     int err = 0;
     t_query info;
     ft_bzero(&info, sizeof(t_query));
