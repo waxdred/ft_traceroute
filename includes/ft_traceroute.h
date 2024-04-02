@@ -21,7 +21,7 @@
 #define QUERY 3
 #define MAX_HOPS 255
 #define DEFAULT_HOPS 30
-#define PACKET_SIZE 64
+#define PACKET_SIZE 60
 #define TIMEOUT_SEC 1
 #define EXIT_RECV -1
 #define EXIT_RECV_DONE 2
