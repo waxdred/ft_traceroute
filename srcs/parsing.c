@@ -25,7 +25,6 @@ static int ft_check(t_trace *trace, int *i, char **av, char opt, int ac) {
   case '?':
     trace->help(av[0]);
     trace->free();
-    *i += 1;
     exit(0);
   case 'h':
     trace->help(av[0]);
@@ -116,6 +115,10 @@ int parse(int ac, char **av) {
   while (i < ac) {
     if (ft_strcmp(av[i], "--icmp") == 0) {
       trace->proto = IPPROTO_ICMP;
+    } else if (ft_strcmp(av[i], "--help") == 0) {
+      trace->help(av[0]);
+      trace->free();
+      exit(0);
     } else {
       ft_getopt(av[i], "I?hqmfp", &opt);
       if (opt == -2) {
