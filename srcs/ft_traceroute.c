@@ -100,6 +100,7 @@ void ft_traceroute() {
       if (trace->proto == IPPROTO_UDP) {
         SetPortUdp(trace, trace->port + i);
       }
+      usleep(100);
       gettimeofday(&trace->tv, NULL);
       info.count = i;
       if (trace->send()) {
