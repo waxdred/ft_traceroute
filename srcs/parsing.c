@@ -98,6 +98,7 @@ static int ft_check(t_trace *trace, int *i, char **av, char opt, int ac) {
       }
       return EXIT_FAILURE;
     }
+    trace->query = val;
     *i += 1;
 
     break;
