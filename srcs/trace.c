@@ -3,7 +3,11 @@
 
 void help(char *s) {
   fprintf(stderr, "Usage: %s, ip_adress\n", s);
-  return;
+  fprintf(stderr, "  -m maxttl\n");
+  fprintf(stderr, "  -p port\n");
+  fprintf(stderr, "  -q query\n");
+  fprintf(stderr, "  -f ttl\n");
+  fprintf(stderr, "  -I icmp\n");
 }
 
 int8_t set_ttl() {
@@ -76,26 +80,21 @@ int8_t openSocket() {
   switch (trace->proto) {
   case IPPROTO_ICMP:
     trace->packetSize = sizeof(struct icmp) + sizeof(struct timeval);
+    trace->packetSize = PACKET_SIZE;
     trace->sock = trace->sockfd;
     break;
   case IPPROTO_UDP:
     trace->packetSize = sizeof(struct udphdr) + sizeof(struct timeval);
+    trace->packetSize = PACKET_SIZE;
     trace->sock = trace->sockfd_udp;
     break;
   }
-  trace->packet = (char *)malloc(trace->packetSize);
+  trace->packet = (char *)malloc(PACKET_SIZE);
   if (!trace->packet) {
     fprintf(stderr, "ft_trace: error allocation: %s\n", strerror(errno));
     return 2;
   }
-  switch (trace->proto) {
-  case IPPROTO_ICMP:
-    ft_memset(trace->packet, 0, sizeof(struct icmp));
-    break;
-  case IPPROTO_UDP:
-    ft_memset(trace->packet, 0, sizeof(struct udphdr));
-    break;
-  }
+  ft_memset(trace->packet, 0, trace->packetSize);
   trace->alloc = 1;
   if (trace->getname()) {
     return EXIT_FAILURE;
